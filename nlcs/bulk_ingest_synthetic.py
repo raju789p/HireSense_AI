@@ -18,10 +18,25 @@ def main():
     if not pdf_files:
         print("No generated resume PDFs found.")
         return
-    print(f"Found {len(pdf_files)} generated resumes.")
+
+    # Only ingest PDFs after 'pooja_iyer_resume.pdf' alphabetically
+    start_after = 'pooja_iyer_resume.pdf'
+    filtered_pdfs = []
+    found = False
+    for pdf in pdf_files:
+        if found:
+            filtered_pdfs.append(pdf)
+        elif pdf.name == start_after:
+            found = True
+
+    if not filtered_pdfs:
+        print(f"No resumes found after {start_after}.")
+        return
+
+    print(f"Found {len(filtered_pdfs)} resumes to ingest (after {start_after}).")
     db = SessionLocal()
     success, fail = 0, 0
-    for pdf_path in pdf_files:
+    for pdf_path in filtered_pdfs:
         try:
             ingest_resume(str(pdf_path), db)
             success += 1
