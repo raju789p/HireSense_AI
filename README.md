@@ -116,4 +116,4 @@ Build a robust, explainable, and intent-driven resume search system that allows 
 ---
 
 ## Contact
-For questions or support, contact: [Your Name/Team]
+For questions or support, contact: [appalaraju7070@gmail.com]
