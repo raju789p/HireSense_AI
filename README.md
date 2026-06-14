@@ -123,4 +123,4 @@ For questions or support, contact: [appalaraju7070@gmail.com]
 ## Demo Video (Bottom Preview)
 This is a short glimpse of how our index search works. In this recording, we primarily show the working flow of resume search and validate the output for a query against the indexed resumes.
 
-Video file: [hiresense-demo-no-audio.mov](demo/hiresense-demo-no-audio.mov)
+Video file: [hiresense-demo-no-audio.mp4](demo/hiresense-demo-no-audio.mp4)
