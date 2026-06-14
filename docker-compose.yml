@@ -1,0 +1,72 @@
+version: '3.8'
+
+services:
+  # MySQL Database
+  db:
+    image: mysql:8.0
+    container_name: nlcs_db
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD:-root}
+      MYSQL_DATABASE: ${DB_NAME:-nlcs_db}
+      MYSQL_USER: ${DB_USER:-nlcs_user}
+      MYSQL_PASSWORD: ${DB_PASSWORD:-nlcs_password}
+    ports:
+      - "3306:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 20s
+      retries: 10
+    networks:
+      - nlcs_network
+
+  # FastAPI Backend
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile.backend
+    container_name: nlcs_backend
+    environment:
+      DATABASE_URL: mysql+pymysql://${DB_USER:-nlcs_user}:${DB_PASSWORD:-nlcs_password}@db:3306/${DB_NAME:-nlcs_db}
+      GROQ_API_KEY: ${GROQ_API_KEY}
+      PYTHONUNBUFFERED: 1
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - ./nlcs:/app/nlcs
+    networks:
+      - nlcs_network
+    restart: unless-stopped
+
+  # Streamlit Frontend
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+    container_name: nlcs_frontend
+    environment:
+      DATABASE_URL: mysql+pymysql://${DB_USER:-nlcs_user}:${DB_PASSWORD:-nlcs_password}@db:3306/${DB_NAME:-nlcs_db}
+      GROQ_API_KEY: ${GROQ_API_KEY}
+      BACKEND_URL: http://backend:8000
+      PYTHONUNBUFFERED: 1
+    ports:
+      - "8501:8501"
+    depends_on:
+      - backend
+      - db
+    volumes:
+      - ./nlcs:/app/nlcs
+    networks:
+      - nlcs_network
+    restart: unless-stopped
+
+volumes:
+  db_data:
+
+networks:
+  nlcs_network:
+    driver: bridge
